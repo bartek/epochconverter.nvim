@@ -11,9 +11,6 @@ local virtual_types_ns = api.nvim_create_namespace("virtual_types")
 
 local M = {}
 
--- Selects an API function to show virtual text.
--- The `nvim_buf_set_virtual_text` will be deprecated in 0.6:
--- https://github.com/neovim/neovim/pull/1518
 function set_virtual_text(buffer_number, ns, start_line, msg)
   if (type(msg[1]) ~= "string") or (msg[2] ~= "TypeAnnot") then
     return
@@ -49,8 +46,7 @@ function M.on_attach(client, _)
     [[
     augroup epochconverter_refresh
       autocmd! * <buffer>
-      autocmd BufEnter,BufWinEnter,TabEnter,BufWrite <buffer> lua require'epochconverter'.annotate_timestamps_async()
-      autocmd InsertLeave <buffer> lua require'epochconverter'.annotate_timestamps_async()
+      autocmd CursorMoved <buffer> lua require'epochconverter'.annotate_timestamps_async()
     augroup END]],
     ""
   )
@@ -75,14 +71,41 @@ function annotate_timestamps()
 
   local pos = api.nvim_win_get_cursor(0) -- row, col
   local line = api.nvim_get_current_line()
-  local msg = { "Hello, World!", "TypeAnnot" }
-  set_virtual_text(buffer_number, virtual_types_ns, pos[1]-1, msg)
+  print(line)
+  if line == "" then
+    return
+  end
+
+  local ts = find_unix_timestamp(line)
+  if ts ~= nil then
+    local msg = { os.date("%c", ts), "TypeAnnot" }
+    set_virtual_text(buffer_number, virtual_types_ns, pos[1]-1, msg)
+  end
 end
 
 
 -- Async wrapper for annotate_timestamps
 function M:annotate_timestamps_async()
   cr = vim.schedule(annotate_timestamps)
+end
+
+-- Utility
+function find_unix_timestamp(str)
+  local pattern = "(%d+)"
+  local ts = string.match(str, pattern)
+  if ts == nil then
+    return
+  end
+
+  ts = tonumber(ts)
+  if ts == nil then
+    return
+  end
+
+  -- The safest assumption we can make wrt timestamps
+  if ts >= 0 and ts <= os.time() then
+     return ts
+  end
 end
 
 return M
