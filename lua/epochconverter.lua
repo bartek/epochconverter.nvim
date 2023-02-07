@@ -34,11 +34,7 @@ function M.disable()
   is_enabled = false
 end
 
-function M.on_attach(client, _)
-  if client == nil then
-    return
-  end
-
+function M.load()
   annotate_timestamps()
 
    -- Setup autocmd
@@ -60,9 +56,6 @@ function annotate_timestamps()
   if vim.fn.getcmdwintype() == ":" then
     return
   end
-  if #vim.lsp.buf_get_clients() == 0 then
-    return
-  end
 
   local buffer_number = api.nvim_get_current_buf()
 
@@ -71,14 +64,13 @@ function annotate_timestamps()
 
   local pos = api.nvim_win_get_cursor(0) -- row, col
   local line = api.nvim_get_current_line()
-  print(line)
   if line == "" then
     return
   end
 
   local ts = find_unix_timestamp(line)
   if ts ~= nil then
-    local msg = { os.date("%c", ts), "TypeAnnot" }
+    local msg = { os.date("%Y-%m-%d %H:%M:%S", ts), "TypeAnnot" }
     set_virtual_text(buffer_number, virtual_types_ns, pos[1]-1, msg)
   end
 end
@@ -101,6 +93,14 @@ function find_unix_timestamp(str)
   if ts == nil then
     return
   end
+
+  -- Guard against numbers which don't look like timestamps
+  -- TODO(bartekci): This is too naive and obviously breaks for older log files.
+  local recent_timestamp = os.time() - (365 * 24 * 60 * 60)
+  if ts < recent_timestamp then
+    return
+  end
+
 
   -- The safest assumption we can make wrt timestamps
   if ts >= 0 and ts <= os.time() then
