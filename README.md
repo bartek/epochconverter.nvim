@@ -1,6 +1,6 @@
 ## epochconverter.nvim
 
-Unix epoch timestamps are the great but can be difficult to read at a glance. I
+Unix epoch timestamps are great but can be difficult to read at a glance. I
 wanted a plugin which would annotate log files and other data as I read it with
 a human readable version of the timestamp. This is it.
 
