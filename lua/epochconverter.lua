@@ -94,15 +94,7 @@ function find_unix_timestamp(str)
     return
   end
 
-  -- Guard against numbers which don't look like timestamps
-  -- TODO(bartekci): This is too naive and obviously breaks for older log files.
-  local recent_timestamp = os.time() - (365 * 24 * 60 * 60)
-  if ts < recent_timestamp then
-    return
-  end
-
-
-  -- The safest assumption we can make wrt timestamps
+  -- The simplest assumption we can make wrt timestamps
   if ts >= 0 and ts <= os.time() then
      return ts
   end
