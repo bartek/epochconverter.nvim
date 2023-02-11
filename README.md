@@ -6,7 +6,6 @@ a human readable version of the timestamp. This is it.
 
 TODO:
 
-- [ ] Better identification of a timestamp string (very naive atm)
 - [ ] Timezone selector
 
 ### Prerequisites
