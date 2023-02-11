@@ -53,6 +53,14 @@ function M.load()
   )
 end
 
+-- From TimeZone tricks: http://lua-users.org/wiki/TimeZone
+function default_timezone_offset(ts)
+    local utcdate   = os.date("!*t", ts)
+    local localdate = os.date("*t", ts)
+    localdate.isdst = false
+    return os.difftime(os.time(localdate), os.time(utcdate))
+end
+
 function annotate_timestamps()
   if is_enabled == false then
     return
@@ -75,7 +83,8 @@ function annotate_timestamps()
 
   local ts = find_unix_timestamp(line)
   if ts ~= nil then
-    local msg = { os.date("%Y-%m-%d %H:%M:%S", ts), "TypeAnnot" }
+    local offset = default_timezone_offset(ts)
+    local msg = { os.date("%Y-%m-%d %H:%M:%S", ts + offset), "TypeAnnot" }
     set_virtual_text(buffer_number, virtual_types_ns, pos[1]-1, msg)
   end
 end
