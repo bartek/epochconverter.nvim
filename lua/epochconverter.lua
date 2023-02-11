@@ -6,6 +6,11 @@ local lsp = vim.lsp
 -- Plugin status
 local is_enabled = true
 
+-- Defaults
+local year = 365 * 24 * 60 * 60
+local date_min = os.time() - (10 * year)
+local date_max = os.time()
+
 -- Namespace for virtual text messages
 local virtual_types_ns = api.nvim_create_namespace("virtual_types")
 
@@ -94,8 +99,7 @@ function find_unix_timestamp(str)
     return
   end
 
-  -- The simplest assumption we can make wrt timestamps
-  if ts >= 0 and ts <= os.time() then
+  if ts >= date_min and ts <= date_max then
      return ts
   end
 end

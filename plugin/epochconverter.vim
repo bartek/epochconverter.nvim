@@ -5,8 +5,8 @@ set cpo&vim
 
 hi TypeAnnot guifg=#7c6f64
 
-command! EnableEpochConverter lua require'epochconverter'.enable()
-command! DisableEpochConverter lua require'epochconverter'.disable()
+command! EpochConverterEnable lua require'epochconverter'.enable()
+command! EpochConverterDisable lua require'epochconverter'.disable()
 
 let &cpo = s:save_cpo
 unlet s:save_cpo
